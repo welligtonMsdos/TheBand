@@ -1,0 +1,6 @@
+@TheBand.CoreApi_HostAddress = http://localhost:5269
+
+GET {{TheBand.CoreApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

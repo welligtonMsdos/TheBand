@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="TheBand.AuthApi/TheBand.AuthApi.csproj" />
+  <Project Path="TheBand.CoreApi/TheBand.CoreApi.csproj" />
+  <Project Path="TheBand.Tests/TheBand.Tests.csproj" />
+</Solution>
