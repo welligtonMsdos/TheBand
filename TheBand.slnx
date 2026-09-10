@@ -1,5 +1,8 @@
 <Solution>
   <Project Path="TheBand.AuthApi/TheBand.AuthApi.csproj" />
+  <Project Path="TheBand.AuthApplication/TheBand.AuthApplication.csproj" Id="053bc3f3-76b5-4adc-a259-664ca04cd72d" />
+  <Project Path="TheBand.AuthDomain/TheBand.AuthDomain.csproj" Id="b12c35f0-ae49-464a-b85c-0150b7e6fd35" />
+  <Project Path="TheBand.AuthInfrastructure/TheBand.AuthInfrastructure.csproj" Id="6bcebe7c-6a7d-4cb2-98ed-75e9b05ef3b6" />
   <Project Path="TheBand.CoreApi/TheBand.CoreApi.csproj" />
   <Project Path="TheBand.Tests/TheBand.Tests.csproj" />
 </Solution>

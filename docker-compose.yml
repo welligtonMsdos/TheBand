@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.auth
+    env_file:
+      - TheBand.AuthApi/.env
     container_name: auth-api
     ports:
       - "5001:8080"
