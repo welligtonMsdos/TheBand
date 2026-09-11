@@ -15,6 +15,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.11" />
+    <PackageReference Include="Npgsql" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TheBand.CoreApplication\TheBand.CoreApplication.csproj" />
+    <ProjectReference Include="..\TheBand.CoreDomain\TheBand.CoreDomain.csproj" />
+    <ProjectReference Include="..\TheBand.CoreInfrastructure\TheBand.CoreInfrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 
