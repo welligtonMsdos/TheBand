@@ -3,6 +3,10 @@
   <Project Path="TheBand.AuthApplication/TheBand.AuthApplication.csproj" Id="053bc3f3-76b5-4adc-a259-664ca04cd72d" />
   <Project Path="TheBand.AuthDomain/TheBand.AuthDomain.csproj" Id="b12c35f0-ae49-464a-b85c-0150b7e6fd35" />
   <Project Path="TheBand.AuthInfrastructure/TheBand.AuthInfrastructure.csproj" Id="6bcebe7c-6a7d-4cb2-98ed-75e9b05ef3b6" />
+  <Project Path="TheBand.AuthTests/TheBand.AuthTests.csproj" Id="6f51ef11-91f1-49f6-a919-9f2c6288d20e" />
   <Project Path="TheBand.CoreApi/TheBand.CoreApi.csproj" />
-  <Project Path="TheBand.Tests/TheBand.Tests.csproj" />
+  <Project Path="TheBand.CoreApplication/TheBand.CoreApplication.csproj" Id="f9146c47-9f37-4cb7-97e6-9b0686d30e8d" />
+  <Project Path="TheBand.CoreDomain/TheBand.CoreDomain.csproj" Id="b1b6fca5-07bf-44dd-af50-7efc67bdc06c" />
+  <Project Path="TheBand.CoreInfrastructure/TheBand.CoreInfrastructure.csproj" Id="77e996d8-7d61-42cc-8b67-aba38659b7d0" />
+  <Project Path="TheBand.CoreTests/TheBand.CoreTests.csproj" Id="a93ecfed-ebeb-4255-98ba-ccb657e95580" />
 </Solution>

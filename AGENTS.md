@@ -1,0 +1,55 @@
+# Diretrizes para CRUDs
+
+Sempre que for solicitado criar, alterar ou completar um CRUD neste projeto, siga estas diretrizes.
+
+## Arquitetura e responsabilidades
+
+- Preserve a separação entre as camadas `CoreApi`, `AuthApi`, `AuthApplication`, `AuthDomain` e `AuthInfrastructure`.
+- A API deve conter somente preocupações de apresentação: controllers/endpoints, contratos HTTP, mapeamento de requisição/resposta, validação de entrada e configuração.
+- A camada Application deve conter os casos de uso do CRUD, regras de orquestração, DTOs/commands/queries e suas interfaces.
+- A camada Domain deve concentrar entidades, value objects, regras de negócio e contratos que pertencem ao domínio. Ela não pode depender de Infrastructure nem de API.
+- A camada Infrastructure deve implementar persistência, acesso a serviços externos e repositórios. Ela depende dos contratos definidos nas camadas internas, nunca o contrário.
+
+## Repositórios e interfaces
+
+- Defina interfaces para abstrações e dependências externas antes de criar suas implementações.
+- Coloque a interface do repositório em `AuthDomain` quando ela fizer parte da linguagem/regra de negócio; caso seja um contrato específico de caso de uso, mantenha-a em `AuthApplication`.
+- Implemente os repositórios concretos em `AuthInfrastructure`.
+- Não acesse `DbContext`, ORM, banco de dados ou serviços externos diretamente em controllers ou casos de uso da Application.
+- Mantenha as interfaces pequenas, coesas e orientadas à necessidade do consumidor. Não crie métodos genéricos que não serão utilizados.
+- Use operações assíncronas, `CancellationToken` e nomes claros para os métodos públicos quando o padrão do projeto permitir.
+
+## Injeção de dependências
+
+- Injete todas as dependências por construtor; não instancie repositórios, serviços, `DbContext` ou clientes externos dentro de classes de negócio.
+- Registre interfaces e implementações no ponto de composição da aplicação, normalmente no projeto de API.
+- Escolha o ciclo de vida correto: repositórios e dependências ligadas ao contexto de requisição normalmente são `Scoped`; serviços sem estado podem ser `Transient` ou `Singleton` apenas quando seguro.
+- Garanta que os projetos internos não dependam da API para resolver dependências.
+
+## Clean Code e qualidade
+
+- Use nomes expressivos, classes pequenas e métodos com uma responsabilidade clara.
+- Evite duplicação, condicionais extensas, parâmetros em excesso e comentários que apenas repitam o código.
+- Valide dados de entrada na borda da aplicação e faça cumprir invariantes importantes no domínio.
+- Trate erros de forma consistente, retornando respostas HTTP adequadas sem expor detalhes internos.
+- Não altere convenções, contratos públicos ou código não relacionado sem necessidade explícita.
+
+## Testes obrigatórios
+
+- Para toda interface nova, crie testes no projeto `TheBand.Tests` que validem o comportamento da respectiva implementação concreta.
+- Teste pelo contrato da interface, não por detalhes internos da classe, para que a implementação possa ser substituída sem quebrar os testes.
+- Inclua cenários de sucesso, ausência de dados, entradas inválidas e falhas relevantes de infraestrutura quando aplicável.
+- Para casos de uso da Application, use mocks/fakes das interfaces e teste suas regras e interações observáveis.
+- Para repositórios, prefira testes de integração com uma infraestrutura isolada quando o comportamento depender de persistência real.
+- Execute os testes afetados antes de concluir e informe claramente quaisquer testes que não puderam ser executados.
+
+## Checklist de entrega de um CRUD
+
+1. Entidade e regras de domínio criadas ou atualizadas.
+2. Contratos/interfaces definidos na camada correta.
+3. Caso de uso da Application implementado.
+4. Repositório/integração implementado em Infrastructure.
+5. Dependências registradas por interface.
+6. Endpoint/controller fino na API, com contratos HTTP apropriados.
+7. Testes adicionados em `TheBand.Tests`, incluindo os contratos das interfaces novas.
+8. Build e testes relevantes executados.
