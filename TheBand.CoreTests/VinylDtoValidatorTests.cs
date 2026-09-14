@@ -22,7 +22,7 @@ public sealed class VinylDtoValidatorTests
     {
         var validator = new UpdateVinylDtoValidator();
 
-        var result = validator.Validate(new UpdateVinylDto("Artist", "Album", 2020, "photo.jpg", 10));
+        var result = validator.Validate(new UpdateVinylDto("Artist", "Album", 2020, "photo-url.jpg", 10));
 
         Assert.True(result.IsValid);
     }

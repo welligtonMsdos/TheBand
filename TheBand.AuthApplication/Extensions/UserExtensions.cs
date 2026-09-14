@@ -11,7 +11,9 @@ public static class UserExtensions
 
         return new UserDto(user._id,
                            user.Name,
-                           user.Email);
+                           user.Email,
+                           user.Role,
+                           user.Active);
     }
 
     public static UserLoginDto ToLoginDto(this User user)

@@ -63,7 +63,7 @@ app.MapScalarApiReference(options =>
 {
     options
         .WithTitle("TheBand API Reference")
-        .WithTheme(ScalarTheme.Moon)
+        .WithTheme(ScalarTheme.BluePlanet)
         .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
 });
 

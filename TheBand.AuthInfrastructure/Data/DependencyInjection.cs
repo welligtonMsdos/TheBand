@@ -13,7 +13,8 @@ public static class DependencyInjection
         MongoMappings.Configure();
 
         var connectionString = configuration["MongoDB:ConnectionString"]
-                               ?? "mongodb://localhost:27017";
+                               ?? configuration.GetConnectionString("AuthConnection")
+                               ?? throw new InvalidOperationException("A string de conexão do MongoDB não foi configurada.");
 
         services.AddSingleton<IMongoClient>(new MongoClient(connectionString));
 
