@@ -1,6 +1,6 @@
 namespace TheBand.CoreApplication.Dtos;
 
-public record VinylDto(
+public record CassetteDto(
     Guid Guid,
     string Artist,
     string Album,
@@ -8,14 +8,14 @@ public record VinylDto(
     string Photo,
     decimal Price);
 
-public record CreateVinylDto(
+public record CreateCassetteDto(
     string Artist,
     string Album,
     int Year,
     string Photo,
     decimal Price);
 
-public record UpdateVinylDto(
+public record UpdateCassetteDto(
     string Artist,
     string Album,
     int Year,

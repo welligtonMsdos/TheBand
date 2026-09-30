@@ -10,7 +10,7 @@ namespace TheBand.AuthApi.Presentation.Controllers;
 [ApiController]
 [Route("api/users")]
 [Authorize(Roles = nameof(UserRole.Admin))]
-public class UsersController : ControllerBase
+public class UsersController : BaseController
 {
     private readonly IUserService _userService;
 

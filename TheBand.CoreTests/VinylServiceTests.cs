@@ -40,6 +40,20 @@ public sealed class VinylServiceTests
     }
 
     [Fact]
+    public async Task UpdateAsync_ExistingVinyl_UpdatesOnlyTheOwnersVinyl()
+    {
+        var repository = new FakeVinylRepository();
+        var service = new VinylService(repository);
+        var created = await service.CreateAsync("user-1", CreateRequest(), CancellationToken.None);
+
+        var updated = await service.UpdateAsync(created.Guid, "user-1", UpdateRequest(), CancellationToken.None);
+
+        Assert.NotNull(updated);
+        Assert.Equal(2021, updated.Year);
+        Assert.Equal(150, updated.Price);
+    }
+
+    [Fact]
     public async Task DeleteAsync_ExistingVinyl_ReturnsTrueAndHidesIt()
     {
         var repository = new FakeVinylRepository();
@@ -81,7 +95,20 @@ internal sealed class FakeVinylRepository : IVinylRepository
 
     public Task<Vinyl?> GetByGuidAsync(Guid guid, string userId, CancellationToken cancellationToken) => Task.FromResult(Items.SingleOrDefault(v => v.Guid == guid && v.UserId == userId && v.Active));
 
-    public Task<bool> UpdateAsync(Vinyl vinyl, string userId, CancellationToken cancellationToken) => Task.FromResult(Items.Any(v => v.Guid == vinyl.Guid && v.UserId == userId && v.Active));
+    public Task<bool> UpdateAsync(Vinyl vinyl, string userId, CancellationToken cancellationToken)
+    {
+        var item = Items.SingleOrDefault(v => v.Guid == vinyl.Guid && v.UserId == userId && v.Active);
+
+        if (item is null) return Task.FromResult(false);
+
+        item.Artist = vinyl.Artist;
+        item.Album = vinyl.Album;
+        item.Year = vinyl.Year;
+        item.Photo = vinyl.Photo;
+        item.Price = vinyl.Price;
+
+        return Task.FromResult(true);
+    }
 
     public Task<bool> DeleteAsync(Guid guid, string userId, CancellationToken cancellationToken) { var item = Items.SingleOrDefault(v => v.Guid == guid && v.UserId == userId && v.Active); if (item is null) return Task.FromResult(false); item.Active = false; return Task.FromResult(true); }
 }

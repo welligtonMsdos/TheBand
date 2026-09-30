@@ -56,11 +56,17 @@ public sealed class VinylRepository : IVinylRepository
 
     public async Task<bool> UpdateAsync(Vinyl vinyl, string userId, CancellationToken cancellationToken)
     {
-        var exists = await _context.Vinyls.AnyAsync(v => v.Guid == vinyl.Guid && v.UserId == userId && v.Active, cancellationToken);
+        var currentVinyl = await _context.Vinyls.FirstOrDefaultAsync(
+            current => current.Guid == vinyl.Guid && current.UserId == userId && current.Active,
+            cancellationToken);
 
-        if (!exists) return false;
+        if (currentVinyl is null) return false;
 
-        _context.Vinyls.Update(vinyl);
+        currentVinyl.Artist = vinyl.Artist;
+        currentVinyl.Album = vinyl.Album;
+        currentVinyl.Year = vinyl.Year;
+        currentVinyl.Photo = vinyl.Photo;
+        currentVinyl.Price = vinyl.Price;
 
         await _context.SaveChangesAsync(cancellationToken);
 

@@ -13,9 +13,21 @@ public static class DependencyInjection
     {
         services.AddScoped<IVinylService, VinylService>();
 
+        services.AddScoped<ICassetteService, CassetteService>();
+
+        services.AddScoped<IConcertService, ConcertService>();
+
         services.AddScoped<IValidator<CreateVinylDto>, CreateVinylDtoValidator>();
 
         services.AddScoped<IValidator<UpdateVinylDto>, UpdateVinylDtoValidator>();
+
+        services.AddScoped<IValidator<CreateCassetteDto>, CreateCassetteDtoValidator>();
+
+        services.AddScoped<IValidator<UpdateCassetteDto>, UpdateCassetteDtoValidator>();
+
+        services.AddScoped<IValidator<CreateConcertDto>, CreateConcertDtoValidator>();
+
+        services.AddScoped<IValidator<UpdateConcertDto>, UpdateConcertDtoValidator>();
 
         return services;
     }

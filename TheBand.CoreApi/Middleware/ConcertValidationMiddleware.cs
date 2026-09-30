@@ -5,30 +5,30 @@ using TheBand.CoreApplication.Dtos;
 
 namespace TheBand.CoreApi.Middleware;
 
-public sealed class VinylValidationMiddleware
+public sealed class ConcertValidationMiddleware
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
     private readonly RequestDelegate _next;
 
-    public VinylValidationMiddleware(RequestDelegate next)
+    public ConcertValidationMiddleware(RequestDelegate next)
     {
         _next = next;
     }
 
     public async Task InvokeAsync(
         HttpContext context,
-        IValidator<CreateVinylDto> createValidator,
-        IValidator<UpdateVinylDto> updateValidator)
+        IValidator<CreateConcertDto> createValidator,
+        IValidator<UpdateConcertDto> updateValidator)
     {
-        if (HttpMethods.IsPost(context.Request.Method) && context.Request.Path.Equals("/api/vinyls"))
+        if (HttpMethods.IsPost(context.Request.Method) && context.Request.Path.Equals("/api/concerts"))
         {
-            var request = await DeserializeAsync<CreateVinylDto>(context);
+            var request = await DeserializeAsync<CreateConcertDto>(context);
 
             if (request is null || !await IsValidAsync(context, request, createValidator)) return;
         }
-        else if (HttpMethods.IsPut(context.Request.Method) && context.Request.Path.StartsWithSegments("/api/vinyls/"))
+        else if (HttpMethods.IsPut(context.Request.Method) && context.Request.Path.StartsWithSegments("/api/concerts/"))
         {
-            var request = await DeserializeAsync<UpdateVinylDto>(context);
+            var request = await DeserializeAsync<UpdateConcertDto>(context);
 
             if (request is null || !await IsValidAsync(context, request, updateValidator)) return;
         }

@@ -20,6 +20,10 @@ public static class DependencyInjection
 
         services.AddScoped<IVinylRepository, VinylRepository>();
 
+        services.AddScoped<ICassetteRepository, CassetteRepository>();
+
+        services.AddScoped<IConcertRepository, ConcertRepository>();
+
         return services;
     }
 }

@@ -56,6 +56,9 @@ Sempre que for solicitado criar, alterar ou completar um CRUD neste projeto, sig
 - Sempre pule um linha entre comandos do c# e dos métodos ou atributos
 - Sempre use o campo userId nos gets 
 
+- Para DTOs de recursos equivalentes, mantenha os validadores `Create` e `Update` no mesmo padrão de regras, ordem e mensagens do recurso de referência já existente. Antes de criar ou alterar um validador, compare-o com esse recurso; por exemplo, os validadores de `Cassette` devem seguir o padrão de `Vinyl`.
+- Para middlewares de validação de recursos equivalentes, siga o padrão de `CassetteValidationMiddleware`: desserialize o corpo com buffering, responda `400` para corpo ausente ou JSON inválido, valide os DTOs de criação e atualização e só encaminhe requisições válidas. Mantenha a mesma estrutura, tratamento de erros e convenção de rotas.
+
 ## Testes obrigatórios
 
 - Há dois projetos de testes: `TheBand.AuthTests` e `TheBand.CoreTests`.

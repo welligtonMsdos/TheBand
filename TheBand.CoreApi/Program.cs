@@ -3,7 +3,6 @@ using Microsoft.IdentityModel.Tokens;
 using OpenTelemetry.Metrics;
 using Scalar.AspNetCore;
 using System.Text;
-using TheBand.CoreApi.Filters;
 using TheBand.CoreApi.Middleware;
 using TheBand.CoreApplication.Extensions;
 using TheBand.CoreInfrastructure.Data;
@@ -27,8 +26,6 @@ builder.Services.AddOpenTelemetry()
 builder.Services.AddOpenApi();
 builder.Services.AddCoreApplication();
 builder.Services.AddCoreInfrastructure(builder.Configuration);
-builder.Services.AddScoped<UserIdMatchesTokenFilter>();
-
 var jwtKey = builder.Configuration["JwtSettings:Key"];
 
 if (string.IsNullOrWhiteSpace(jwtKey) || jwtKey.Length < 32)
@@ -51,6 +48,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddControllers();
 
 var app = builder.Build();
@@ -68,9 +76,14 @@ app.MapScalarApiReference(options =>
 });
 
 app.UseHttpsRedirection();
+
+app.UseCors("CorsPolicy");
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<VinylValidationMiddleware>();
+app.UseMiddleware<CassetteValidationMiddleware>();
+app.UseMiddleware<ConcertValidationMiddleware>();
 app.MapControllers();
 
 app.Run();
