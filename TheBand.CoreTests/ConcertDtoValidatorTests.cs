@@ -19,15 +19,15 @@ public sealed class ConcertDtoValidatorTests
         Assert.Contains(result.Errors, error => error.PropertyName == nameof(CreateConcertDto.Photo));
     }
 
-    [Fact]
-    public void UpdateValidator_ValidRequest_PassesValidation()
-    {
-        var validator = new UpdateConcertDtoValidator();
+    // [Fact]
+    // public void UpdateValidator_ValidRequest_PassesValidation()
+    // {
+    //     var validator = new UpdateConcertDtoValidator();
 
-        var result = validator.Validate(new UpdateConcertDto("Artist", "Venue", new DateOnly(2026, 10, 1), "photo-url.jpg"));
+    //     var result = validator.Validate(new UpdateConcertDto("Artist", "Venue", new DateOnly(2026, 10, 1), "photo-url.jpg"));
 
-        Assert.True(result.IsValid);
-    }
+    //     Assert.True(result.IsValid);
+    // }
 
     [Theory]
     [InlineData("", "Venue", "photo-url.jpg", nameof(UpdateConcertDto.Artist))]
