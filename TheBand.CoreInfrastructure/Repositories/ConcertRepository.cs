@@ -41,6 +41,38 @@ public sealed class ConcertRepository : IConcertRepository
         return concerts.AsList();
     }
 
+    public async Task<IReadOnlyCollection<Concert>> GetUpcomingAsync(string userId, CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT "Guid", "Artist", "Venue", "ShowDate", "Photo", "Active", "UserId"
+            FROM "Concert"
+            WHERE "Active" = TRUE AND "UserId" = @UserId AND "ShowDate" >= NOW();
+            """;
+
+        await using var connection = await _dataSource.OpenConnectionAsync(cancellationToken);
+
+        var concerts = await connection.QueryAsync<Concert>(
+            new CommandDefinition(sql, new { UserId = userId }, cancellationToken: cancellationToken));
+
+        return concerts.AsList();
+    }
+
+    public async Task<IReadOnlyCollection<Concert>> GetPastAsync(string userId, CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT "Guid", "Artist", "Venue", "ShowDate", "Photo", "Active", "UserId"
+            FROM "Concert"
+            WHERE "Active" = TRUE AND "UserId" = @UserId AND "ShowDate" < NOW();
+            """;
+
+        await using var connection = await _dataSource.OpenConnectionAsync(cancellationToken);
+
+        var concerts = await connection.QueryAsync<Concert>(
+            new CommandDefinition(sql, new { UserId = userId }, cancellationToken: cancellationToken));
+
+        return concerts.AsList();
+    }
+
     public async Task<Concert?> GetByGuidAsync(Guid guid, string userId, CancellationToken cancellationToken)
     {
         const string sql = """

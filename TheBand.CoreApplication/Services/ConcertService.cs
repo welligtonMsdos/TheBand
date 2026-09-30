@@ -43,6 +43,20 @@ public sealed class ConcertService : IConcertService
         return (await _repository.GetAllAsync(userId, cancellationToken)).Select(ToDto).ToList();
     }
 
+    public async Task<IReadOnlyCollection<ConcertDto>> GetUpcomingAsync(string userId, CancellationToken cancellationToken)
+    {
+        ValidateUserId(userId);
+
+        return (await _repository.GetUpcomingAsync(userId, cancellationToken)).Select(ToDto).ToList();
+    }
+
+    public async Task<IReadOnlyCollection<ConcertDto>> GetPastAsync(string userId, CancellationToken cancellationToken)
+    {
+        ValidateUserId(userId);
+
+        return (await _repository.GetPastAsync(userId, cancellationToken)).Select(ToDto).ToList();
+    }
+
     public async Task<ConcertDto?> GetByGuidAsync(Guid guid, string userId, CancellationToken cancellationToken)
     {
         ValidateGuid(guid);
