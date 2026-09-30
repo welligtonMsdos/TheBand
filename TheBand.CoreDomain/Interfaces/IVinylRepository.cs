@@ -8,6 +8,10 @@ public interface IVinylRepository
 
     Task<IReadOnlyCollection<Vinyl>> GetAllAsync(string userId, CancellationToken cancellationToken);
 
+    Task<IReadOnlyCollection<Vinyl>> GetMostExpensiveAsync(string userId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyCollection<Vinyl>> GetThreeCheapestAsync(string userId, CancellationToken cancellationToken);
+
     Task<Vinyl?> GetByGuidAsync(Guid guid, string userId, CancellationToken cancellationToken);
 
     Task<bool> UpdateAsync(Vinyl vinyl, string userId, CancellationToken cancellationToken);

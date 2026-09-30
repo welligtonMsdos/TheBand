@@ -8,6 +8,10 @@ public interface IVinylService
 
     Task<IReadOnlyCollection<VinylDto>> GetAllAsync(string userId, CancellationToken cancellationToken);
 
+    Task<IReadOnlyCollection<VinylDto>> GetMostExpensiveAsync(string userId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyCollection<VinylDto>> GetThreeCheapestAsync(string userId, CancellationToken cancellationToken);
+
     Task<VinylDto?> GetByGuidAsync(Guid guid, string userId, CancellationToken cancellationToken);
 
     Task<VinylDto?> UpdateAsync(Guid guid, string userId, UpdateVinylDto request, CancellationToken cancellationToken);

@@ -29,6 +29,16 @@ public sealed class VinylsController : BaseController
         CancellationToken cancellationToken) =>
         Ok(await _service.GetAllAsync(UserId, cancellationToken));
 
+    [HttpGet("most-expensive")]
+    public async Task<ActionResult<IReadOnlyCollection<VinylDto>>> GetMostExpensive(
+        CancellationToken cancellationToken) =>
+        Ok(await _service.GetMostExpensiveAsync(UserId, cancellationToken));
+
+    [HttpGet("three-cheapest")]
+    public async Task<ActionResult<IReadOnlyCollection<VinylDto>>> GetThreeCheapest(
+        CancellationToken cancellationToken) =>
+        Ok(await _service.GetThreeCheapestAsync(UserId, cancellationToken));
+
     [HttpGet("{guid:guid}")]
     public async Task<ActionResult<VinylDto>> GetByGuid(
         Guid guid,

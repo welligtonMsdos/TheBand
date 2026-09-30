@@ -40,6 +40,40 @@ public sealed class VinylRepository : IVinylRepository
         return vinyls.AsList();
     }
 
+    public async Task<IReadOnlyCollection<Vinyl>> GetMostExpensiveAsync(string userId, CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT "Guid", "Artist", "Album", "Year", "Photo", "Price", "Active", "UserId"
+            FROM "Vinyl"
+            WHERE "Active" = TRUE AND "UserId" = @UserId
+            ORDER BY "Price" DESC, "Guid"
+            LIMIT 3;
+            """;
+
+        await using var connection = await _dataSource.OpenConnectionAsync(cancellationToken);
+
+        var vinyls = await connection.QueryAsync<Vinyl>(new CommandDefinition(sql, new { UserId = userId }, cancellationToken: cancellationToken));
+
+        return vinyls.AsList();
+    }
+
+    public async Task<IReadOnlyCollection<Vinyl>> GetThreeCheapestAsync(string userId, CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT "Guid", "Artist", "Album", "Year", "Photo", "Price", "Active", "UserId"
+            FROM "Vinyl"
+            WHERE "Active" = TRUE AND "UserId" = @UserId
+            ORDER BY "Price", "Guid"
+            LIMIT 3;
+            """;
+
+        await using var connection = await _dataSource.OpenConnectionAsync(cancellationToken);
+
+        var vinyls = await connection.QueryAsync<Vinyl>(new CommandDefinition(sql, new { UserId = userId }, cancellationToken: cancellationToken));
+
+        return vinyls.AsList();
+    }
+
     public async Task<Vinyl?> GetByGuidAsync(Guid guid, string userId, CancellationToken cancellationToken)
     {
         const string sql = """
