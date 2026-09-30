@@ -1,10 +1,12 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
-using TheBand.AuthApi.Exceptions;
+using TheBand.AuthApi.Filters;
+using TheBand.AuthApi.Middleware;
 using TheBand.AuthApplication.Extensions;
 using TheBand.AuthApplication.Validators;
 using TheBand.AuthInfrastructure.Data;
@@ -13,7 +15,12 @@ DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-#region 1. CORS
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 builder.Services.AddCors(options =>
 {
@@ -26,10 +33,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-#endregion
-
-#region 2. Validação e Tratamento de Erros
-
 builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
@@ -37,27 +40,18 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true;
 });
 
-builder.Services.AddProblemDetails();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidatorFilter>();
+});
 
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-
-#endregion
-
-#region 3. Camadas de Aplicação e Infraestrutura
+MongoMappings.Configure();
 
 builder.Services.AddApplication();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 
-#endregion
-
-#region 4. OpenAPI / Scalar
-
 builder.Services.AddOpenApi();
-
-#endregion
-
-#region 5. Autenticação JWT e Autorização
 
 var secret = builder.Configuration["JwtSettings:Key"];
 
@@ -83,30 +77,42 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
 
-#endregion
-
 var app = builder.Build();
 
-#region PIPELINE DE EXECUÇÃO
+app.UseForwardedHeaders();
 
-app.UseExceptionHandler();
+app.UseMiddleware<ErrorHandlingMiddleware>();
+
+app.MapOpenApi();
+
+app.MapScalarApiReference(options =>
+{
+    options.Title = "TheBand API Reference";
+    options.Theme = ScalarTheme.BluePlanet;
+    options.DefaultHttpClient = new(ScalarTarget.JavaScript, ScalarClient.HttpClient);
+    options.CustomCss = "";
+    options.ShowSidebar = true;
+    options.DarkMode = true;
+    options.AddPreferredSecuritySchemes("Bearer")
+           .AddHttpAuthentication("Bearer", auth =>
+           {
+               auth.Token = "your-bearer-token";
+           });
+});
 
 app.UseCors("CorsPolicy");
 
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseHttpsRedirection();
 
-app.MapOpenApi();
-app.MapScalarApiReference(options =>
-{
-    options
-        .WithTitle("TheBand API Reference")
-        .WithTheme(ScalarTheme.BluePlanet)
-        .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
-});
+app.UseAuthentication();
+
+app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
 
-#endregion
+
+
+
+

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TheBand.AuthApi.Middleware;
 using TheBand.AuthApplication.Dtos;
 using TheBand.AuthApplication.Interfaces;
 
@@ -6,7 +7,7 @@ namespace TheBand.AuthApi.Presentation.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController : ControllerBase
+public class AuthController : BaseController
 {
     private readonly IUserService _userService;
 
@@ -18,8 +19,8 @@ public class AuthController : ControllerBase
     [HttpPost("[Action]")]
     public async Task<IActionResult> Login([FromBody] UserLoginDto userLoginDto)
     {
-        var user = await _userService.GetDataLoginAsync(userLoginDto);             
+        var user = await _userService.GetDataLoginAsync(userLoginDto);
 
-        return Ok(user);
+        return Ok(Result<UserDataLoginDto>.Ok(user));
     }
 }

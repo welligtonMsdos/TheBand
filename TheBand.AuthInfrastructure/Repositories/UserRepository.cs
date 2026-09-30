@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using TheBand.AuthDomain.Entities;
 using TheBand.AuthDomain.Interfaces;
 using TheBand.AuthInfrastructure.Data;
@@ -14,23 +15,67 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    public async Task<User> GetDataLoginAsync(string Email)
+    public async Task<User?> GetDataLoginAsync(string email, CancellationToken cancellationToken = default)
     {
-        var user = await _context
-                            .Users
-                                .Find(u => u.Email == Email && u.Active)
-                                .FirstOrDefaultAsync();
+        return await _context.Users
+            .Find(user => user.Email == email && user.Active)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<User>> GetUsersAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.Users
+            .Find(user => user.Active)
+            .SortBy(user => user.Name)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<User?> GetByIdAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        if (!ObjectId.TryParse(userId, out _))
+            return null;
+
+        return await _context.Users
+            .Find(user => user._id == userId && user.Active)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        return await _context.Users
+            .Find(user => user.Email == email)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<User> CreateAsync(User user, CancellationToken cancellationToken = default)
+    {
+        await _context.Users.InsertOneAsync(user, cancellationToken: cancellationToken);
 
         return user;
     }
 
-    public async Task<ICollection<User>> GetUsersAsync()
+    public async Task<bool> UpdateAsync(User user, CancellationToken cancellationToken = default)
     {
-        var users = await _context
-                            .Users
-                                .Find(u => u.Active)
-                                .ToListAsync();
+        var result = await _context.Users.ReplaceOneAsync(
+            currentUser => currentUser._id == user._id && currentUser.Active,
+            user,
+            cancellationToken: cancellationToken);
 
-        return users;
+        return result.MatchedCount == 1;
+    }
+
+    public async Task<bool> DeactivateAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        if (!ObjectId.TryParse(userId, out _))
+            return false;
+
+        var update = Builders<User>.Update.Set(user => user.Active, false);
+
+        var result = await _context.Users.UpdateOneAsync(
+            user => user._id == userId && user.Active,
+            update,
+            cancellationToken: cancellationToken);
+
+        return result.ModifiedCount == 1;
     }
 }

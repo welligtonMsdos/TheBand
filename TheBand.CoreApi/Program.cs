@@ -1,7 +1,17 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using OpenTelemetry.Metrics;
 using Scalar.AspNetCore;
+using System.Text;
+using TheBand.CoreApi.Middleware;
+using TheBand.CoreApplication.Extensions;
+using TheBand.CoreInfrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
+DotNetEnv.Env.Load(Path.Combine(builder.Environment.ContentRootPath, ".env"));
+
+builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddOpenTelemetry()
     .WithMetrics(metrics =>
@@ -14,6 +24,42 @@ builder.Services.AddOpenTelemetry()
     });
 
 builder.Services.AddOpenApi();
+builder.Services.AddCoreApplication();
+builder.Services.AddCoreInfrastructure(builder.Configuration);
+var jwtKey = builder.Configuration["JwtSettings:Key"];
+
+if (string.IsNullOrWhiteSpace(jwtKey) || jwtKey.Length < 32)
+    throw new InvalidOperationException("JWT key is missing or too short (minimum 32 characters).");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false;
+        options.MapInboundClaims = false;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            ValidateIssuer = true,
+            ValidIssuer = "http://localhost:5001",
+            ValidateAudience = false,
+            ValidateLifetime = true
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -25,34 +71,19 @@ app.MapScalarApiReference(options =>
 {
     options
         .WithTitle("TheBand API Reference")
-        .WithTheme(ScalarTheme.Moon)
+        .WithTheme(ScalarTheme.BluePlanet)
         .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
 });
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.UseCors("CorsPolicy");
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseMiddleware<VinylValidationMiddleware>();
+app.UseMiddleware<CassetteValidationMiddleware>();
+app.UseMiddleware<ConcertValidationMiddleware>();
+app.MapControllers();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

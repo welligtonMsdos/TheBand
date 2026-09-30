@@ -13,7 +13,7 @@ public class AuthContext
     public AuthContext(IMongoClient client,
                        IConfiguration config)
     {
-        var dbName = config["MongoDB:DatabaseName"] ?? "TheBandAuthDb";
+        var dbName = config["MongoDB:DatabaseName"] ?? "TomAuth";
 
         _database = client.GetDatabase(dbName);
     }
