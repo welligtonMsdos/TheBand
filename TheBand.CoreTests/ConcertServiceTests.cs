@@ -55,6 +55,29 @@ public sealed class ConcertServiceTests
     }
 
     [Fact]
+    public async Task GetUpcomingAndPastAsync_ReturnOnlyTheUsersConcertsInTheRequestedPeriod()
+    {
+        var repository = new FakeConcertRepository();
+        var service = new ConcertService(repository);
+        var tomorrow = DateOnly.FromDateTime(DateTime.Today).AddDays(1);
+        var yesterday = tomorrow.AddDays(-2);
+
+        repository.Items.AddRange([
+            CreateConcert("user-1", tomorrow),
+            CreateConcert("user-1", yesterday),
+            CreateConcert("user-2", tomorrow.AddDays(1))
+        ]);
+
+        var upcoming = await service.GetUpcomingAsync("user-1", CancellationToken.None);
+        var past = await service.GetPastAsync("user-1", CancellationToken.None);
+
+        Assert.Single(upcoming);
+        Assert.Equal(tomorrow, upcoming.Single().ShowDate);
+        Assert.Single(past);
+        Assert.Equal(yesterday, past.Single().ShowDate);
+    }
+
+    [Fact]
     public async Task DeleteAsync_ExistingConcert_ReturnsTrueAndHidesIt()
     {
         var repository = new FakeConcertRepository();
@@ -76,6 +99,17 @@ public sealed class ConcertServiceTests
     private static CreateConcertDto CreateRequest() => new("Artist", "Venue", new DateOnly(2026, 10, 1), "photo.jpg");
 
     private static UpdateConcertDto UpdateRequest() => new("Artist", "New Venue", new DateOnly(2026, 11, 1), "new.jpg");
+
+    private static Concert CreateConcert(string userId, DateOnly showDate) => new()
+    {
+        Guid = Guid.NewGuid(),
+        Artist = "Artist",
+        Venue = "Venue",
+        ShowDate = showDate,
+        Photo = "photo.jpg",
+        Active = true,
+        UserId = userId
+    };
 }
 
 internal sealed class FakeConcertRepository : IConcertRepository
@@ -90,6 +124,12 @@ internal sealed class FakeConcertRepository : IConcertRepository
 
     public Task<IReadOnlyCollection<Concert>> GetAllAsync(string userId, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyCollection<Concert>>(Items.Where(item => item.Active && item.UserId == userId).ToList());
+
+    public Task<IReadOnlyCollection<Concert>> GetUpcomingAsync(string userId, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyCollection<Concert>>(Items.Where(item => item.Active && item.UserId == userId && item.ShowDate >= DateOnly.FromDateTime(DateTime.Today)).ToList());
+
+    public Task<IReadOnlyCollection<Concert>> GetPastAsync(string userId, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyCollection<Concert>>(Items.Where(item => item.Active && item.UserId == userId && item.ShowDate < DateOnly.FromDateTime(DateTime.Today)).ToList());
 
     public Task<Concert?> GetByGuidAsync(Guid guid, string userId, CancellationToken cancellationToken) =>
         Task.FromResult(Items.SingleOrDefault(item => item.Guid == guid && item.UserId == userId && item.Active));
