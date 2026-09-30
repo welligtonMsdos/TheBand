@@ -41,6 +41,20 @@ public sealed class VinylService : IVinylService
         return (await _repository.GetAllAsync(userId, cancellationToken)).Select(ToDto).ToList();
     }
 
+    public async Task<IReadOnlyCollection<VinylDto>> GetMostExpensiveAsync(string userId, CancellationToken cancellationToken)
+    {
+        ValidateUserId(userId);
+
+        return (await _repository.GetMostExpensiveAsync(userId, cancellationToken)).Select(ToDto).ToList();
+    }
+
+    public async Task<IReadOnlyCollection<VinylDto>> GetThreeCheapestAsync(string userId, CancellationToken cancellationToken)
+    {
+        ValidateUserId(userId);
+
+        return (await _repository.GetThreeCheapestAsync(userId, cancellationToken)).Select(ToDto).ToList();
+    }
+
     public async Task<VinylDto?> GetByGuidAsync(Guid guid, string userId, CancellationToken cancellationToken)
     {
         if (guid == Guid.Empty) throw new ArgumentException("O identificador do vinyl é inválido.", nameof(guid));

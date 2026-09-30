@@ -81,7 +81,41 @@ public sealed class VinylServiceTests
         Assert.Empty(result);
     }
 
-    private static CreateVinylDto CreateRequest() => new("Artist", "Album", 2020, "photo.jpg", 100);
+    [Fact]
+    public async Task GetMostExpensiveAsync_ReturnsAtMostThreeOfTheUsersVinylsInDescendingPriceOrder()
+    {
+        var repository = new FakeVinylRepository();
+        var service = new VinylService(repository);
+
+        await service.CreateAsync("user-1", CreateRequest(price: 30), CancellationToken.None);
+        await service.CreateAsync("user-1", CreateRequest(price: 100), CancellationToken.None);
+        await service.CreateAsync("user-1", CreateRequest(price: 50), CancellationToken.None);
+        await service.CreateAsync("user-1", CreateRequest(price: 75), CancellationToken.None);
+        await service.CreateAsync("user-2", CreateRequest(price: 200), CancellationToken.None);
+
+        var result = await service.GetMostExpensiveAsync("user-1", CancellationToken.None);
+
+        Assert.Equal([100m, 75m, 50m], result.Select(vinyl => vinyl.Price));
+    }
+
+    [Fact]
+    public async Task GetThreeCheapestAsync_ReturnsAtMostThreeOfTheUsersVinylsInAscendingPriceOrder()
+    {
+        var repository = new FakeVinylRepository();
+        var service = new VinylService(repository);
+
+        await service.CreateAsync("user-1", CreateRequest(price: 50), CancellationToken.None);
+        await service.CreateAsync("user-1", CreateRequest(price: 10), CancellationToken.None);
+        await service.CreateAsync("user-1", CreateRequest(price: 30), CancellationToken.None);
+        await service.CreateAsync("user-1", CreateRequest(price: 20), CancellationToken.None);
+        await service.CreateAsync("user-2", CreateRequest(price: 1), CancellationToken.None);
+
+        var result = await service.GetThreeCheapestAsync("user-1", CancellationToken.None);
+
+        Assert.Equal([10m, 20m, 30m], result.Select(vinyl => vinyl.Price));
+    }
+
+    private static CreateVinylDto CreateRequest(decimal price = 100) => new("Artist", "Album", 2020, "photo.jpg", price);
     private static UpdateVinylDto UpdateRequest() => new("Artist", "Album", 2021, "new.jpg", 150);
 }
 
@@ -92,6 +126,12 @@ internal sealed class FakeVinylRepository : IVinylRepository
     public Task AddAsync(Vinyl vinyl, CancellationToken cancellationToken) { Items.Add(vinyl); return Task.CompletedTask; }
 
     public Task<IReadOnlyCollection<Vinyl>> GetAllAsync(string userId, CancellationToken cancellationToken) => Task.FromResult<IReadOnlyCollection<Vinyl>>(Items.Where(v => v.Active && v.UserId == userId).ToList());
+
+    public Task<IReadOnlyCollection<Vinyl>> GetMostExpensiveAsync(string userId, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyCollection<Vinyl>>(Items.Where(v => v.Active && v.UserId == userId).OrderByDescending(v => v.Price).ThenBy(v => v.Guid).Take(3).ToList());
+
+    public Task<IReadOnlyCollection<Vinyl>> GetThreeCheapestAsync(string userId, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyCollection<Vinyl>>(Items.Where(v => v.Active && v.UserId == userId).OrderBy(v => v.Price).ThenBy(v => v.Guid).Take(3).ToList());
 
     public Task<Vinyl?> GetByGuidAsync(Guid guid, string userId, CancellationToken cancellationToken) => Task.FromResult(Items.SingleOrDefault(v => v.Guid == guid && v.UserId == userId && v.Active));
 

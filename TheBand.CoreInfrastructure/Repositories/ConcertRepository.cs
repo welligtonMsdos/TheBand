@@ -46,7 +46,8 @@ public sealed class ConcertRepository : IConcertRepository
         const string sql = """
             SELECT "Guid", "Artist", "Venue", "ShowDate", "Photo", "Active", "UserId"
             FROM "Concert"
-            WHERE "Active" = TRUE AND "UserId" = @UserId AND "ShowDate" >= NOW();
+            WHERE "Active" = TRUE AND "UserId" = @UserId AND "ShowDate" >= NOW()
+            ORDER BY "ShowDate" ASC;
             """;
 
         await using var connection = await _dataSource.OpenConnectionAsync(cancellationToken);
@@ -62,7 +63,8 @@ public sealed class ConcertRepository : IConcertRepository
         const string sql = """
             SELECT "Guid", "Artist", "Venue", "ShowDate", "Photo", "Active", "UserId"
             FROM "Concert"
-            WHERE "Active" = TRUE AND "UserId" = @UserId AND "ShowDate" < NOW();
+            WHERE "Active" = TRUE AND "UserId" = @UserId AND "ShowDate" < NOW()
+            ORDER BY "ShowDate" DESC;
             """;
 
         await using var connection = await _dataSource.OpenConnectionAsync(cancellationToken);

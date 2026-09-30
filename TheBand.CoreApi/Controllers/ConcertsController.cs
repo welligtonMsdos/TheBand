@@ -32,7 +32,7 @@ public sealed class ConcertsController : BaseController
         CancellationToken cancellationToken) =>
         Ok(await _service.GetAllAsync(UserId, cancellationToken));
 
-    [HttpGet("upcomming")]
+    [HttpGet("upcoming")]
     public async Task<ActionResult<IReadOnlyCollection<ConcertDto>>> GetUpcoming(
         CancellationToken cancellationToken) =>
         Ok(await _service.GetUpcomingAsync(UserId, cancellationToken));
