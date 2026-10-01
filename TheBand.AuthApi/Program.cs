@@ -83,6 +83,10 @@ app.UseForwardedHeaders();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
+app.UseHttpsRedirection();
+
+app.UseCors("CorsPolicy");
+
 app.MapOpenApi();
 
 app.MapScalarApiReference(options =>
@@ -100,10 +104,6 @@ app.MapScalarApiReference(options =>
            });
 });
 
-app.UseCors("CorsPolicy");
-
-app.UseHttpsRedirection();
-
 app.UseAuthentication();
 
 app.UseAuthorization();
@@ -111,8 +111,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-
-
-
 
