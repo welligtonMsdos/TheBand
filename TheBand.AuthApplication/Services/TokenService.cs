@@ -29,7 +29,7 @@ public class TokenService : ITokenService
                     new Claim("role", userDataLoginDto.Role.ToString())
            }),
             Expires = DateTime.UtcNow.AddHours(2),
-            Issuer = "http://localhost:5001",
+            Issuer = "https://theband-auth.onrender.com",
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
 
