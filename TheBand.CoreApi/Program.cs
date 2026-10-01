@@ -53,7 +53,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
     {
-        policy.WithOrigins("http://localhost:4200","https://tom-colections.onrender.com")
+        policy.WithOrigins("https://tom-colections.onrender.com")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
