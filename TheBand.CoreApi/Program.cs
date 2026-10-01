@@ -41,7 +41,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
             ValidateIssuer = true,
-            ValidIssuer = "http://localhost:5001",
+            ValidIssuer = "https://theband-auth.onrender.com",
             ValidateAudience = false,
             ValidateLifetime = true
         };
@@ -53,7 +53,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
+        policy.WithOrigins("http://localhost:4200","https://tom-colections.onrender.com")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
