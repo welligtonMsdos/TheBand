@@ -81,11 +81,11 @@ var app = builder.Build();
 
 app.UseForwardedHeaders();
 
-app.UseMiddleware<ErrorHandlingMiddleware>();
-
-app.UseHttpsRedirection();
+app.UseRouting();
 
 app.UseCors("CorsPolicy");
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.MapOpenApi();
 
@@ -111,4 +111,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
