@@ -13,6 +13,19 @@ DotNetEnv.Env.Load(Path.Combine(builder.Environment.ContentRootPath, ".env"));
 
 builder.Configuration.AddEnvironmentVariables();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.WithOrigins("https://theband-auth.onrender.com",
+                           "http://localhost:4200",
+                           "https://tom-colections.onrender.com")
+         .AllowAnyMethod()
+         .AllowAnyHeader()
+         .AllowCredentials();
+    });
+});
+
 builder.Services.AddOpenTelemetry()
     .WithMetrics(metrics =>
     {
@@ -34,8 +47,7 @@ if (string.IsNullOrWhiteSpace(jwtKey) || jwtKey.Length < 32)
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.RequireHttpsMetadata = false;
-        options.MapInboundClaims = false;
+        options.RequireHttpsMetadata = false;       
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
@@ -49,19 +61,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("CorsPolicy", policy =>
-    {
-        policy.WithOrigins("https://tom-colections.onrender.com")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
-});
-
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
+
+app.UseMiddleware<VinylValidationMiddleware>();
+app.UseMiddleware<CassetteValidationMiddleware>();
+app.UseMiddleware<ConcertValidationMiddleware>();
 
 app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
@@ -69,22 +77,30 @@ app.MapOpenApi();
 
 app.MapScalarApiReference(options =>
 {
-    options
-        .WithTitle("TheBand API Reference")
-        .WithTheme(ScalarTheme.BluePlanet)
-        .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+    options.Title = "TheBand API Reference";
+    options.Theme = ScalarTheme.BluePlanet;
+    options.DefaultHttpClient = new(ScalarTarget.JavaScript, ScalarClient.HttpClient);
+    options.CustomCss = "";
+    options.ShowSidebar = true;
+    options.DarkMode = true;
+    options.AddPreferredSecuritySchemes("Bearer")
+           .AddHttpAuthentication("Bearer", auth =>
+           {
+               auth.Token = "your-bearer-token";
+           });
 });
 
-app.UseHttpsRedirection();
-
 app.UseCors("CorsPolicy");
+
+app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.UseMiddleware<VinylValidationMiddleware>();
-app.UseMiddleware<CassetteValidationMiddleware>();
-app.UseMiddleware<ConcertValidationMiddleware>();
+app.MapControllers();
 
 app.Run();
+
+
+
