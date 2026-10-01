@@ -26,7 +26,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
     {
-        policy.WithOrigins("http://localhost:5001", "http://localhost:4200")
+        policy.WithOrigins("http://localhost:5001", "http://localhost:4200","https://theband-auth.onrender.com")
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
@@ -67,7 +67,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
             ValidateIssuer = true,
-            ValidIssuer = "http://localhost:5001",
+            ValidIssuer = "https://theband-auth.onrender.com",
             ValidateAudience = false,
             ValidateLifetime = true
         };
