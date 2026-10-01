@@ -80,10 +80,11 @@ app.UseHttpsRedirection();
 app.UseCors("CorsPolicy");
 
 app.UseAuthentication();
+
 app.UseAuthorization();
+
 app.UseMiddleware<VinylValidationMiddleware>();
 app.UseMiddleware<CassetteValidationMiddleware>();
 app.UseMiddleware<ConcertValidationMiddleware>();
-app.MapControllers();
 
 app.Run();
