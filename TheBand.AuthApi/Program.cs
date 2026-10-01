@@ -26,7 +26,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
     {
-        policy.WithOrigins("https://tom-colections.onrender.com")
+        policy.WithOrigins("http://localhost:4200",
+                           "https://theband-qv3s.onrender.com",
+                           "https://tom-colections.onrender.com")
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
@@ -81,10 +83,6 @@ var app = builder.Build();
 
 app.UseForwardedHeaders();
 
-app.UseRouting();
-
-app.UseCors("CorsPolicy");
-
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.MapOpenApi();
@@ -103,6 +101,10 @@ app.MapScalarApiReference(options =>
                auth.Token = "your-bearer-token";
            });
 });
+
+app.UseCors("CorsPolicy");
+
+app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
