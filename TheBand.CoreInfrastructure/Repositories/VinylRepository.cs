@@ -30,7 +30,8 @@ public sealed class VinylRepository : IVinylRepository
         const string sql = """
             SELECT "Guid", "Artist", "Album", "Year", "Photo", "Price", "Active", "UserId"
             FROM "Vinyl"
-            WHERE "Active" = TRUE AND "UserId" = @UserId;
+            WHERE "Active" = TRUE AND "UserId" = @UserId
+            ORDER By "Year";
             """;
 
         await using var connection = await _dataSource.OpenConnectionAsync(cancellationToken);
