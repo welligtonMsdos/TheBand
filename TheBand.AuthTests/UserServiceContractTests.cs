@@ -63,7 +63,7 @@ public sealed class UserServiceContractTests
         var repository = new FakeUserRepository { IdUser = user, EmailUser = user };
         IUserService service = new UserService(repository, new FakeTokenService("token"));
 
-        var result = await service.UpdateAsync(user._id, new UpdateUserDto("Maria Atualizada", "maria@example.com", null, UserRole.Admin));
+        var result = await service.UpdateAsync(user._id, new UpdateUserDto("Maria Atualizada", "maria@example.com", UserRole.Admin));
 
         Assert.NotNull(result);
         Assert.Equal("Maria Atualizada", result.Name);
