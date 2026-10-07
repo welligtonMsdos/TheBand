@@ -28,7 +28,7 @@ public sealed class ConcertRepository : IConcertRepository
     public async Task<IReadOnlyCollection<Concert>> GetAllAsync(string userId, CancellationToken cancellationToken)
     {
         const string sql = """
-            SELECT "Guid", "Artist", "Venue", "ShowDate", "Photo", "Active", "UserId"
+            SELECT "Guid", "Artist", "Venue", "ShowDate", "Photo", "Active", "UserId", "Price"
             FROM "Concert"
             WHERE "Active" = TRUE AND "UserId" = @UserId;
             """;
@@ -44,7 +44,7 @@ public sealed class ConcertRepository : IConcertRepository
     public async Task<IReadOnlyCollection<Concert>> GetUpcomingAsync(string userId, CancellationToken cancellationToken)
     {
         const string sql = """
-            SELECT "Guid", "Artist", "Venue", "ShowDate", "Photo", "Active", "UserId"
+            SELECT "Guid", "Artist", "Venue", "ShowDate", "Photo", "Active", "UserId", "Price"
             FROM "Concert"
             WHERE "Active" = TRUE AND "UserId" = @UserId AND "ShowDate" >= NOW()
             ORDER BY "ShowDate" ASC;
@@ -61,7 +61,7 @@ public sealed class ConcertRepository : IConcertRepository
     public async Task<IReadOnlyCollection<Concert>> GetPastAsync(string userId, CancellationToken cancellationToken)
     {
         const string sql = """
-            SELECT "Guid", "Artist", "Venue", "ShowDate", "Photo", "Active", "UserId"
+            SELECT "Guid", "Artist", "Venue", "ShowDate", "Photo", "Active", "UserId", "Price"
             FROM "Concert"
             WHERE "Active" = TRUE AND "UserId" = @UserId AND "ShowDate" < NOW()
             ORDER BY "ShowDate" DESC;
@@ -78,7 +78,7 @@ public sealed class ConcertRepository : IConcertRepository
     public async Task<Concert?> GetByGuidAsync(Guid guid, string userId, CancellationToken cancellationToken)
     {
         const string sql = """
-            SELECT "Guid", "Artist", "Venue", "ShowDate", "Photo", "Active", "UserId"
+            SELECT "Guid", "Artist", "Venue", "ShowDate", "Photo", "Active", "UserId", "Price"
             FROM "Concert"
             WHERE "Guid" = @Guid AND "UserId" = @UserId AND "Active" = TRUE;
             """;
@@ -101,6 +101,7 @@ public sealed class ConcertRepository : IConcertRepository
         currentConcert.Venue = concert.Venue;
         currentConcert.ShowDate = concert.ShowDate;
         currentConcert.Photo = concert.Photo;
+        currentConcert.Price = concert.Price;
 
         await _context.SaveChangesAsync(cancellationToken);
 

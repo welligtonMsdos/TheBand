@@ -96,9 +96,9 @@ public sealed class ConcertServiceTests
         await Assert.ThrowsAsync<ArgumentException>(() => service.GetAllAsync(string.Empty, CancellationToken.None));
     }
 
-    private static CreateConcertDto CreateRequest() => new("Artist", "Venue", new DateOnly(2026, 10, 1), "photo.jpg");
+    private static CreateConcertDto CreateRequest() => new("Artist", "Venue", new DateOnly(2026, 10, 1), "photo.jpg", 1);
 
-    private static UpdateConcertDto UpdateRequest() => new("Artist", "New Venue", new DateOnly(2026, 11, 1), "new.jpg");
+    private static UpdateConcertDto UpdateRequest() => new("Artist", "New Venue", new DateOnly(2026, 11, 1), "new.jpg", 1);
 
     private static Concert CreateConcert(string userId, DateOnly showDate) => new()
     {
@@ -107,6 +107,7 @@ public sealed class ConcertServiceTests
         Venue = "Venue",
         ShowDate = showDate,
         Photo = "photo.jpg",
+        Price = 1,
         Active = true,
         UserId = userId
     };

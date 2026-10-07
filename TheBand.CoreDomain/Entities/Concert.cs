@@ -14,5 +14,7 @@ public class Concert
 
     public bool Active { get; set; }
 
+    public decimal Price { get; set; }
+
     public required string UserId { get; set; }
 }

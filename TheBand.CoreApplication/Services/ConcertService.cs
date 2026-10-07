@@ -28,7 +28,8 @@ public sealed class ConcertService : IConcertService
             ShowDate = request.ShowDate,
             Photo = request.Photo,
             Active = true,
-            UserId = userId
+            UserId = userId,
+            Price = request.Price
         };
 
         await _repository.AddAsync(concert, cancellationToken);
@@ -84,7 +85,8 @@ public sealed class ConcertService : IConcertService
             ShowDate = request.ShowDate,
             Photo = request.Photo,
             Active = true,
-            UserId = userId
+            UserId = userId,
+            Price = request.Price
         };
 
         return await _repository.UpdateAsync(concert, userId, cancellationToken) ? ToDto(concert) : null;
@@ -116,5 +118,6 @@ public sealed class ConcertService : IConcertService
         concert.Artist,
         concert.Venue,
         concert.ShowDate,
-        concert.Photo);
+        concert.Photo,
+        concert.Price);
 }

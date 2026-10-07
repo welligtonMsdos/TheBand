@@ -24,5 +24,8 @@ public sealed class CreateConcertDtoValidator : AbstractValidator<CreateConcertD
             .NotEmpty().WithMessage("Foto é obrigatória")
             .MinimumLength(3).WithMessage("URL da foto deve ter pelo menos 3 caracteres")
             .MaximumLength(255).WithMessage("URL da foto não deve exceder 255 caracteres");
+
+        RuleFor(x => x.Price)
+            .GreaterThan(0).WithMessage("Preço deve ser maior que zero");
     }
 }
