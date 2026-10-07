@@ -10,13 +10,14 @@ public sealed class ConcertDtoValidatorTests
     {
         var validator = new CreateConcertDtoValidator();
 
-        var result = validator.Validate(new CreateConcertDto(string.Empty, string.Empty, default, string.Empty));
+        var result = validator.Validate(new CreateConcertDto(string.Empty, string.Empty, default, string.Empty, 0));
 
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, error => error.PropertyName == nameof(CreateConcertDto.Artist));
         Assert.Contains(result.Errors, error => error.PropertyName == nameof(CreateConcertDto.Venue));
         Assert.Contains(result.Errors, error => error.PropertyName == nameof(CreateConcertDto.ShowDate));
         Assert.Contains(result.Errors, error => error.PropertyName == nameof(CreateConcertDto.Photo));
+        Assert.Contains(result.Errors, error => error.PropertyName == nameof(CreateConcertDto.Price));
     }
 
     // [Fact]
@@ -42,7 +43,7 @@ public sealed class ConcertDtoValidatorTests
     {
         var validator = new UpdateConcertDtoValidator();
 
-        var result = validator.Validate(new UpdateConcertDto(artist, venue, new DateOnly(2026, 10, 1), photo));
+        var result = validator.Validate(new UpdateConcertDto(artist, venue, new DateOnly(2026, 10, 1), photo, 1));
 
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, error => error.PropertyName == propertyName);

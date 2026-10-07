@@ -61,6 +61,8 @@ public sealed class CoreContext : DbContext
 
         concert.Property(item => item.Photo).HasMaxLength(255).IsRequired();
 
+        concert.Property(item => item.Price).HasPrecision(10, 2);
+
         concert.Property(item => item.UserId).HasMaxLength(50).IsRequired();
     }
 }
