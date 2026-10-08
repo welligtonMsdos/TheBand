@@ -1,4 +1,5 @@
 using TheBand.CoreApplication.Dtos;
+using TheBand.CoreApplication.Interfaces;
 using TheBand.CoreApplication.Services;
 using TheBand.CoreDomain.Entities;
 using TheBand.CoreDomain.Interfaces;
@@ -96,6 +97,94 @@ public sealed class ConcertServiceTests
         await Assert.ThrowsAsync<ArgumentException>(() => service.GetAllAsync(string.Empty, CancellationToken.None));
     }
 
+    [Fact]
+    public async Task GetPriceByYearAsync_GroupsAndSumsActiveConcertsForTheUserInYearOrder()
+    {
+        var repository = new FakeConcertRepository();
+
+        var first = CreateConcert("user-1", new DateOnly(2026, 1, 1));
+
+        first.Price = 125.50m;
+
+        var second = CreateConcert("user-1", new DateOnly(2026, 12, 31));
+
+        second.Price = 74.75m;
+
+        var previousYear = CreateConcert("user-1", new DateOnly(2025, 12, 31));
+
+        previousYear.Price = 50m;
+
+        var inactive = CreateConcert("user-1", new DateOnly(2024, 1, 1));
+
+        inactive.Active = false;
+
+        repository.Items.AddRange([
+            first,
+            second,
+            previousYear,
+            inactive,
+            CreateConcert("user-2", new DateOnly(2026, 1, 1)),
+            CreateConcert("user-2", new DateOnly(2023, 1, 1))
+        ]);
+
+        IConcertService service = new ConcertService(repository);
+
+        var result = await service.GetPriceByYearAsync("user-1", CancellationToken.None);
+
+        Assert.Equal([
+            new ConcertPriceByYearDto(2025, 50m),
+            new ConcertPriceByYearDto(2026, 200.25m)
+        ], result);
+    }
+
+    [Fact]
+    public async Task GetPriceByYearAsync_NoConcerts_ReturnsEmptyCollection()
+    {
+        IConcertService service = new ConcertService(new FakeConcertRepository());
+
+        Assert.Empty(await service.GetPriceByYearAsync("user-1", CancellationToken.None));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData(null)]
+    public async Task GetPriceByYearAsync_InvalidUserId_ThrowsArgumentException(string? userId)
+    {
+        IConcertService service = new ConcertService(new FakeConcertRepository());
+
+        await Assert.ThrowsAsync<ArgumentException>(() => service.GetPriceByYearAsync(userId!, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task GetPriceByYearAsync_ForwardsCancellationTokenToRepository()
+    {
+        using var cancellation = new CancellationTokenSource();
+
+        var repository = new FakeConcertRepository();
+
+        IConcertService service = new ConcertService(repository);
+
+        await service.GetPriceByYearAsync("user-1", cancellation.Token);
+
+        Assert.Equal(cancellation.Token, repository.LastGetAllCancellationToken);
+    }
+
+    [Fact]
+    public async Task GetPriceByYearAsync_RepositoryFailure_PropagatesException()
+    {
+        var exception = new InvalidOperationException("Repository unavailable.");
+
+        var repository = new FakeConcertRepository { GetAllException = exception };
+
+        IConcertService service = new ConcertService(repository);
+
+        var result = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            service.GetPriceByYearAsync("user-1", CancellationToken.None));
+
+        Assert.Same(exception, result);
+    }
+
     private static CreateConcertDto CreateRequest() => new("Artist", "Venue", new DateOnly(2026, 10, 1), "photo.jpg", 1);
 
     private static UpdateConcertDto UpdateRequest() => new("Artist", "New Venue", new DateOnly(2026, 11, 1), "new.jpg", 1);
@@ -117,14 +206,25 @@ internal sealed class FakeConcertRepository : IConcertRepository
 {
     public List<Concert> Items { get; } = [];
 
+    public CancellationToken LastGetAllCancellationToken { get; private set; }
+
+    public Exception? GetAllException { get; init; }
+
     public Task AddAsync(Concert concert, CancellationToken cancellationToken)
     {
         Items.Add(concert);
         return Task.CompletedTask;
     }
 
-    public Task<IReadOnlyCollection<Concert>> GetAllAsync(string userId, CancellationToken cancellationToken) =>
-        Task.FromResult<IReadOnlyCollection<Concert>>(Items.Where(item => item.Active && item.UserId == userId).ToList());
+    public Task<IReadOnlyCollection<Concert>> GetAllAsync(string userId, CancellationToken cancellationToken)
+    {
+        LastGetAllCancellationToken = cancellationToken;
+
+        if (GetAllException is not null)
+            return Task.FromException<IReadOnlyCollection<Concert>>(GetAllException);
+
+        return Task.FromResult<IReadOnlyCollection<Concert>>(Items.Where(item => item.Active && item.UserId == userId).ToList());
+    }
 
     public Task<IReadOnlyCollection<Concert>> GetUpcomingAsync(string userId, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyCollection<Concert>>(Items.Where(item => item.Active && item.UserId == userId && item.ShowDate >= DateOnly.FromDateTime(DateTime.Today)).ToList());

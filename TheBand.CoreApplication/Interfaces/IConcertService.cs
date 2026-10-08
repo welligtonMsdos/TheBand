@@ -8,6 +8,8 @@ public interface IConcertService
 
     Task<IReadOnlyCollection<ConcertDto>> GetAllAsync(string userId, CancellationToken cancellationToken);
 
+    Task<IReadOnlyCollection<ConcertPriceByYearDto>> GetPriceByYearAsync(string userId, CancellationToken cancellationToken);
+
     Task<IReadOnlyCollection<ConcertDto>> GetUpcomingAsync(string userId, CancellationToken cancellationToken);
 
     Task<IReadOnlyCollection<ConcertDto>> GetPastAsync(string userId, CancellationToken cancellationToken);
