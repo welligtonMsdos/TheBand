@@ -36,7 +36,22 @@ builder.Services.AddOpenTelemetry()
             .AddPrometheusExporter();
     });
 
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    {
+        if (!builder.Environment.IsDevelopment())
+        {
+            document.Servers = new()
+            {
+                new() { Url = "https://theband-qv3s.onrender.com" }
+            };
+        }
+
+        return Task.CompletedTask;
+    });
+});
+
 builder.Services.AddCoreApplication();
 builder.Services.AddCoreInfrastructure(builder.Configuration);
 var jwtKey = builder.Configuration["JwtSettings:Key"];
@@ -65,7 +80,7 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-app.UseForwardedHeaders();
+app.UseForwardedHeaders(); 
 
 app.UseMiddleware<VinylValidationMiddleware>();
 app.UseMiddleware<CassetteValidationMiddleware>();
