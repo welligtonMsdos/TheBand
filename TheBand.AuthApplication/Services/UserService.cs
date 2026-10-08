@@ -93,6 +93,24 @@ public class UserService : IUserService
         return updated ? user.ToUserDto() : null;
     }
 
+    public async Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto changePasswordDto, CancellationToken cancellationToken = default)
+    {
+        var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
+
+        if (user is null)
+            return false;
+
+        if (!BCrypt.Net.BCrypt.Verify(changePasswordDto.CurrentPassword, user.Password))
+            throw new BusinessException("A senha atual está errada.");
+
+        if (changePasswordDto.NewPassword != changePasswordDto.ConfirmNewPassword)
+            throw new BusinessException("As senhas não batem.");
+
+        user.Password = BCrypt.Net.BCrypt.HashPassword(changePasswordDto.NewPassword);
+
+        return await _userRepository.UpdateAsync(user, cancellationToken);
+    }
+
     public Task<bool> DeleteAsync(string userId, CancellationToken cancellationToken = default)
         => _userRepository.DeactivateAsync(userId, cancellationToken);
 
