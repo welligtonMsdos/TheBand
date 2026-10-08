@@ -1,4 +1,6 @@
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Unicode;
 using TheBand.AuthApplication.Exceptions;
 
 namespace TheBand.AuthApi.Middleware;
@@ -33,7 +35,8 @@ public sealed class ErrorHandlingMiddleware
 
             var options = new JsonSerializerOptions
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
             };
 
             await context.Response.WriteAsync(JsonSerializer.Serialize(response, options));

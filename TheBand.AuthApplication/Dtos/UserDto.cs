@@ -25,3 +25,7 @@ public record UserDataLoginDto(string _id,
 
 public record UserLoginDto(string Email,
                            string Password);
+
+public record ChangePasswordDto(string CurrentPassword,
+                                string NewPassword,
+                                string ConfirmNewPassword);

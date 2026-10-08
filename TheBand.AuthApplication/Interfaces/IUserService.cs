@@ -12,6 +12,8 @@ public interface IUserService
 
     Task<UserDto?> UpdateAsync(string userId, UpdateUserDto updateUserDto, CancellationToken cancellationToken = default);
 
+    Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto changePasswordDto, CancellationToken cancellationToken = default);
+
     Task<bool> DeleteAsync(string userId, CancellationToken cancellationToken = default);
 
     Task<UserDataLoginDto> GetDataLoginAsync(UserLoginDto userLoginDto, CancellationToken cancellationToken = default);
