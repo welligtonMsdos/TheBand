@@ -42,10 +42,10 @@ builder.Services.AddOpenApi(options =>
     {
         if (!builder.Environment.IsDevelopment())
         {
-            document.Servers = new()
-            {
+            document.Servers =
+            [
                 new() { Url = "https://theband-qv3s.onrender.com" }
-            };
+            ];
         }
 
         return Task.CompletedTask;
