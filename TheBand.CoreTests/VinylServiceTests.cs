@@ -123,9 +123,24 @@ internal sealed class FakeVinylRepository : IVinylRepository
 {
     public List<Vinyl> Items { get; } = [];
 
+    public string? LastGetAllUserId { get; private set; }
+
+    public CancellationToken LastGetAllCancellationToken { get; private set; }
+
+    public Exception? GetAllException { get; init; }
+
     public Task AddAsync(Vinyl vinyl, CancellationToken cancellationToken) { Items.Add(vinyl); return Task.CompletedTask; }
 
-    public Task<IReadOnlyCollection<Vinyl>> GetAllAsync(string userId, CancellationToken cancellationToken) => Task.FromResult<IReadOnlyCollection<Vinyl>>(Items.Where(v => v.Active && v.UserId == userId).ToList());
+    public Task<IReadOnlyCollection<Vinyl>> GetAllAsync(string userId, CancellationToken cancellationToken)
+    {
+        LastGetAllUserId = userId;
+
+        LastGetAllCancellationToken = cancellationToken;
+
+        if (GetAllException is not null) return Task.FromException<IReadOnlyCollection<Vinyl>>(GetAllException);
+
+        return Task.FromResult<IReadOnlyCollection<Vinyl>>(Items.Where(v => v.Active && v.UserId == userId).ToList());
+    }
 
     public Task<IReadOnlyCollection<Vinyl>> GetMostExpensiveAsync(string userId, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyCollection<Vinyl>>(Items.Where(v => v.Active && v.UserId == userId).OrderByDescending(v => v.Price).ThenBy(v => v.Guid).Take(3).ToList());
