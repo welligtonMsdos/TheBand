@@ -8,7 +8,7 @@ public interface IVinylService
 
     Task<IReadOnlyCollection<VinylDto>> GetAllAsync(string userId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyCollection<VinylPhotoDto>> GetPhotosAsync(string userId, CancellationToken cancellationToken);
+    Task<VinylPhotoPageDto> GetPhotosAsync(string userId, int page, CancellationToken cancellationToken);
 
     Task<IReadOnlyCollection<VinylDto>> GetMostExpensiveAsync(string userId, CancellationToken cancellationToken);
 

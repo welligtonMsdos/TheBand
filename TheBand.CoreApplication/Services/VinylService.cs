@@ -41,13 +41,23 @@ public sealed class VinylService : IVinylService
         return (await _repository.GetAllAsync(userId, cancellationToken)).Select(ToDto).ToList();
     }
 
-    public async Task<IReadOnlyCollection<VinylPhotoDto>> GetPhotosAsync(string userId, CancellationToken cancellationToken)
+    public async Task<VinylPhotoPageDto> GetPhotosAsync(string userId, int page, CancellationToken cancellationToken)
     {
         ValidateUserId(userId);
 
-        var vinyls = await _repository.GetAllAsync(userId, cancellationToken);
+        ArgumentOutOfRangeException.ThrowIfLessThan(page, 1);
 
-        return vinyls.Select(vinyl => new VinylPhotoDto(vinyl.Guid, vinyl.Photo)).ToList();
+        const int pageSize = 10;
+
+        var offset = ((long)page - 1) * pageSize;
+
+        var vinyls = await _repository.GetPhotosAsync(userId, offset, pageSize, cancellationToken);
+
+        var totalItems = await _repository.CountActiveAsync(userId, cancellationToken);
+
+        var items = vinyls.Select(vinyl => new VinylPhotoDto(vinyl.Guid, vinyl.Photo)).ToList();
+
+        return new VinylPhotoPageDto(items, page, pageSize, totalItems);
     }
 
     public async Task<IReadOnlyCollection<VinylDto>> GetMostExpensiveAsync(string userId, CancellationToken cancellationToken)

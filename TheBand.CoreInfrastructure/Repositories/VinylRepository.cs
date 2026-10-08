@@ -41,6 +41,38 @@ public sealed class VinylRepository : IVinylRepository
         return vinyls.AsList();
     }
 
+    public async Task<IReadOnlyCollection<Vinyl>> GetPhotosAsync(string userId, long offset, int pageSize, CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT "Guid", "Photo"
+            FROM "Vinyl"
+            WHERE "Active" = TRUE AND "UserId" = @UserId
+            ORDER BY "Year", "Guid"
+            LIMIT @PageSize OFFSET @Offset;
+            """;
+
+        await using var connection = await _dataSource.OpenConnectionAsync(cancellationToken);
+
+        var vinyls = await connection.QueryAsync<Vinyl>(
+            new CommandDefinition(sql, new { UserId = userId, Offset = offset, PageSize = pageSize }, cancellationToken: cancellationToken));
+
+        return vinyls.AsList();
+    }
+
+    public async Task<long> CountActiveAsync(string userId, CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT COUNT(*)
+            FROM "Vinyl"
+            WHERE "Active" = TRUE AND "UserId" = @UserId;
+            """;
+
+        await using var connection = await _dataSource.OpenConnectionAsync(cancellationToken);
+
+        return await connection.QuerySingleAsync<long>(
+            new CommandDefinition(sql, new { UserId = userId }, cancellationToken: cancellationToken));
+    }
+
     public async Task<IReadOnlyCollection<Vinyl>> GetMostExpensiveAsync(string userId, CancellationToken cancellationToken)
     {
         const string sql = """

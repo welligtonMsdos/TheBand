@@ -8,6 +8,10 @@ public interface IVinylRepository
 
     Task<IReadOnlyCollection<Vinyl>> GetAllAsync(string userId, CancellationToken cancellationToken);
 
+    Task<IReadOnlyCollection<Vinyl>> GetPhotosAsync(string userId, long offset, int pageSize, CancellationToken cancellationToken);
+
+    Task<long> CountActiveAsync(string userId, CancellationToken cancellationToken);
+
     Task<IReadOnlyCollection<Vinyl>> GetMostExpensiveAsync(string userId, CancellationToken cancellationToken);
 
     Task<IReadOnlyCollection<Vinyl>> GetThreeCheapestAsync(string userId, CancellationToken cancellationToken);
