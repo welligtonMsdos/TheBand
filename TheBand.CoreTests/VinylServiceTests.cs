@@ -129,6 +129,20 @@ internal sealed class FakeVinylRepository : IVinylRepository
 
     public Exception? GetAllException { get; init; }
 
+    public string? LastCountUserId { get; private set; }
+
+    public CancellationToken LastCountCancellationToken { get; private set; }
+
+    public Exception? CountException { get; init; }
+
+    public long LastPhotoOffset { get; private set; }
+
+    public int LastPhotoPageSize { get; private set; }
+
+    public string? LastPhotoUserId { get; private set; }
+
+    public CancellationToken LastPhotoCancellationToken { get; private set; }
+
     public Task AddAsync(Vinyl vinyl, CancellationToken cancellationToken) { Items.Add(vinyl); return Task.CompletedTask; }
 
     public Task<IReadOnlyCollection<Vinyl>> GetAllAsync(string userId, CancellationToken cancellationToken)
@@ -140,6 +154,43 @@ internal sealed class FakeVinylRepository : IVinylRepository
         if (GetAllException is not null) return Task.FromException<IReadOnlyCollection<Vinyl>>(GetAllException);
 
         return Task.FromResult<IReadOnlyCollection<Vinyl>>(Items.Where(v => v.Active && v.UserId == userId).ToList());
+    }
+
+    public Task<IReadOnlyCollection<Vinyl>> GetPhotosAsync(string userId, long offset, int pageSize, CancellationToken cancellationToken)
+    {
+        LastPhotoUserId = userId;
+
+        LastPhotoCancellationToken = cancellationToken;
+
+        LastPhotoOffset = offset;
+
+        LastPhotoPageSize = pageSize;
+
+        if (GetAllException is not null) return Task.FromException<IReadOnlyCollection<Vinyl>>(GetAllException);
+
+        if (cancellationToken.IsCancellationRequested) return Task.FromCanceled<IReadOnlyCollection<Vinyl>>(cancellationToken);
+
+        var vinyls = Items.Where(v => v.Active && v.UserId == userId)
+            .OrderBy(v => v.Year)
+            .ThenBy(v => v.Guid)
+            .Where((_, index) => index >= offset)
+            .Take(pageSize)
+            .ToList();
+
+        return Task.FromResult<IReadOnlyCollection<Vinyl>>(vinyls);
+    }
+
+    public Task<long> CountActiveAsync(string userId, CancellationToken cancellationToken)
+    {
+        LastCountUserId = userId;
+
+        LastCountCancellationToken = cancellationToken;
+
+        if (CountException is not null) return Task.FromException<long>(CountException);
+
+        if (cancellationToken.IsCancellationRequested) return Task.FromCanceled<long>(cancellationToken);
+
+        return Task.FromResult(Items.LongCount(v => v.Active && v.UserId == userId));
     }
 
     public Task<IReadOnlyCollection<Vinyl>> GetMostExpensiveAsync(string userId, CancellationToken cancellationToken) =>

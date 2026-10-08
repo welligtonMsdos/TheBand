@@ -10,6 +10,40 @@ namespace TheBand.CoreTests;
 public sealed class VinylRepositoryContractTests
 {
     [Fact]
+
+    public async Task CountActiveAsync_CanceledRequest_PropagatesCancellation()
+    {
+        await using var context = new CoreContext(new DbContextOptionsBuilder<CoreContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+
+        await using var dataSource = NpgsqlDataSource.Create("Host=localhost;Database=unused");
+
+        IVinylRepository repository = new VinylRepository(context, dataSource);
+
+        using var cancellation = new CancellationTokenSource();
+
+        cancellation.Cancel();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repository.CountActiveAsync("user-1", cancellation.Token));
+    }
+
+    [Fact]
+
+    public async Task GetPhotosAsync_CanceledRequest_PropagatesCancellation()
+    {
+        await using var context = new CoreContext(new DbContextOptionsBuilder<CoreContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+
+        await using var dataSource = NpgsqlDataSource.Create("Host=localhost;Database=unused");
+
+        IVinylRepository repository = new VinylRepository(context, dataSource);
+
+        using var cancellation = new CancellationTokenSource();
+
+        cancellation.Cancel();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repository.GetPhotosAsync("user-1", 0, 10, cancellation.Token));
+    }
+
+    [Fact]
     public async Task CommandRepository_AddUpdateAndSoftDelete_UsesEfCore()
     {
         await using var context = new CoreContext(new DbContextOptionsBuilder<CoreContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);

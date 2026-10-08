@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TheBand.CoreApplication.Dtos;
@@ -31,9 +32,10 @@ public sealed class VinylsController : BaseController
 
     [HttpGet("photos")]
 
-    public async Task<ActionResult<IReadOnlyCollection<VinylPhotoDto>>> GetPhotos(
-        CancellationToken cancellationToken) =>
-        Ok(await _service.GetPhotosAsync(UserId, cancellationToken));
+    public async Task<ActionResult<VinylPhotoPageDto>> GetPhotos(
+        CancellationToken cancellationToken,
+        [FromQuery, Range(1, int.MaxValue)] int page = 1) =>
+        Ok(await _service.GetPhotosAsync(UserId, page, cancellationToken));
 
     [HttpGet("most-expensive")]
     public async Task<ActionResult<IReadOnlyCollection<VinylDto>>> GetMostExpensive(
