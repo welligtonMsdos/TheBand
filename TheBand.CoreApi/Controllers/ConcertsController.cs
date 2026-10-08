@@ -32,6 +32,11 @@ public sealed class ConcertsController : BaseController
         CancellationToken cancellationToken) =>
         Ok(await _service.GetAllAsync(UserId, cancellationToken));
 
+    [HttpGet("price-by-year")]
+    public async Task<ActionResult<IReadOnlyCollection<ConcertPriceByYearDto>>> GetPriceByYear(
+        CancellationToken cancellationToken) =>
+        Ok(await _service.GetPriceByYearAsync(UserId, cancellationToken));
+
     [HttpGet("upcoming")]
     public async Task<ActionResult<IReadOnlyCollection<ConcertDto>>> GetUpcoming(
         CancellationToken cancellationToken) =>

@@ -44,6 +44,19 @@ public sealed class ConcertService : IConcertService
         return (await _repository.GetAllAsync(userId, cancellationToken)).Select(ToDto).ToList();
     }
 
+    public async Task<IReadOnlyCollection<ConcertPriceByYearDto>> GetPriceByYearAsync(string userId, CancellationToken cancellationToken)
+    {
+        ValidateUserId(userId);
+
+        var concerts = await _repository.GetAllAsync(userId, cancellationToken);
+
+        return concerts
+            .GroupBy(concert => concert.ShowDate.Year)
+            .OrderBy(group => group.Key)
+            .Select(group => new ConcertPriceByYearDto(group.Key, group.Sum(concert => concert.Price)))
+            .ToList();
+    }
+
     public async Task<IReadOnlyCollection<ConcertDto>> GetUpcomingAsync(string userId, CancellationToken cancellationToken)
     {
         ValidateUserId(userId);
