@@ -41,6 +41,15 @@ public sealed class VinylService : IVinylService
         return (await _repository.GetAllAsync(userId, cancellationToken)).Select(ToDto).ToList();
     }
 
+    public async Task<IReadOnlyCollection<VinylPhotoDto>> GetPhotosAsync(string userId, CancellationToken cancellationToken)
+    {
+        ValidateUserId(userId);
+
+        var vinyls = await _repository.GetAllAsync(userId, cancellationToken);
+
+        return vinyls.Select(vinyl => new VinylPhotoDto(vinyl.Guid, vinyl.Photo)).ToList();
+    }
+
     public async Task<IReadOnlyCollection<VinylDto>> GetMostExpensiveAsync(string userId, CancellationToken cancellationToken)
     {
         ValidateUserId(userId);
