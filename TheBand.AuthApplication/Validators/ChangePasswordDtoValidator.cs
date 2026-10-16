@@ -7,11 +7,19 @@ public sealed class ChangePasswordDtoValidator : AbstractValidator<ChangePasswor
 {
     public ChangePasswordDtoValidator()
     {
-        RuleFor(user => user.CurrentPassword).NotEmpty();
+        RuleFor(user => user.CurrentPassword)
+            .NotEmpty()
+            .WithMessage("A senha atual é obrigatória.");
 
-        RuleFor(user => user.NewPassword).NotEmpty().MinimumLength(8).MaximumLength(100);
+        RuleFor(user => user.NewPassword)
+            .NotEmpty()
+            .MinimumLength(8)
+            .MaximumLength(100)
+            .WithMessage("A nova senha deve ter entre 8 e 100 caracteres.");
 
-        RuleFor(user => user.ConfirmNewPassword).NotEmpty()
-            .Equal(user => user.NewPassword).WithMessage("As senhas não batem.");
+        RuleFor(user => user.ConfirmNewPassword)
+            .NotEmpty()
+            .Equal(user => user.NewPassword)
+            .WithMessage("As senhas não batem.");
     }
 }

@@ -97,8 +97,7 @@ public class UserService : IUserService
     {
         var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
 
-        if (user is null)
-            return false;
+        if (user is null)  return false;
 
         if (!BCrypt.Net.BCrypt.Verify(changePasswordDto.CurrentPassword, user.Password))
             throw new BusinessException("A senha atual está errada.");

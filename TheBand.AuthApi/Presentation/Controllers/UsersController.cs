@@ -45,6 +45,13 @@ public class UsersController : BaseController
         return CreatedAtAction(nameof(GetById), new { userId = user._id }, Result<UserDto>.Ok(user));
     }
 
+    [AllowAnonymous]
+    [HttpPost("[Action]")]
+    public async Task<IActionResult> SignUp([FromBody] CreateUserDto createUserDto)
+    {
+        return await Post(createUserDto, CancellationToken.None);
+    }
+
     [HttpPut("{userId}")]
     public async Task<IActionResult> Put(string userId, [FromBody] UpdateUserDto updateUserDto, CancellationToken cancellationToken)
     {
@@ -53,6 +60,19 @@ public class UsersController : BaseController
         return user is null
             ? NotFound(Result<object>.Failure("Usuário não encontrado."))
             : Ok(Result<UserDto>.Ok(user));
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> Put([FromBody] ChangePasswordDto changePasswordDto, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(UserId))
+            return Unauthorized(Result<object>.Failure("Usuário não autenticado."));
+
+        var updated = await _userService.ChangePasswordAsync(UserId, changePasswordDto, cancellationToken);
+
+        return updated
+            ? Ok(Result<object>.Ok(null!, "Senha salva com sucesso"))
+            : NotFound(Result<object>.Failure("Usuário não encontrado."));
     }
 
     [HttpDelete("{userId}")]
