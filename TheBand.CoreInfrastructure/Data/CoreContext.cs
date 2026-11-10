@@ -6,15 +6,16 @@ namespace TheBand.CoreInfrastructure.Data;
 public sealed class CoreContext : DbContext
 {
     public DbSet<Vinyl> Vinyls => Set<Vinyl>();
-
     public DbSet<Cassette> Cassettes => Set<Cassette>();
-
     public DbSet<Concert> Concerts => Set<Concert>();
+    public DbSet<CD> CDs => Set<CD>();
 
     public CoreContext(DbContextOptions<CoreContext> options) : base(options) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        #region Vinyl
+
         var vinyl = modelBuilder.Entity<Vinyl>();
 
         vinyl.ToTable(nameof(Vinyl));
@@ -31,6 +32,10 @@ public sealed class CoreContext : DbContext
 
         vinyl.Property(item => item.UserId).HasMaxLength(50).IsRequired();
 
+        #endregion        
+
+        #region Cassette
+
         var cassette = modelBuilder.Entity<Cassette>();
 
         cassette.ToTable(nameof(Cassette));
@@ -46,6 +51,10 @@ public sealed class CoreContext : DbContext
         cassette.Property(item => item.Price).HasPrecision(10, 2);
 
         cassette.Property(item => item.UserId).HasMaxLength(50).IsRequired();
+
+        #endregion
+
+        #region Concert
 
         var concert = modelBuilder.Entity<Concert>();
 
@@ -64,5 +73,27 @@ public sealed class CoreContext : DbContext
         concert.Property(item => item.Price).HasPrecision(10, 2);
 
         concert.Property(item => item.UserId).HasMaxLength(50).IsRequired();
+
+        #endregion
+
+        #region CD
+
+        var cd = modelBuilder.Entity<CD>();
+
+        cd.ToTable(nameof(CD));
+
+        cd.HasKey(item => item.Guid);
+
+        cd.Property(item => item.Artist).HasMaxLength(50).IsRequired();
+
+        cd.Property(item => item.Album).HasMaxLength(50).IsRequired();
+
+        cd.Property(item => item.Photo).HasMaxLength(255).IsRequired();
+
+        cd.Property(item => item.Price).HasPrecision(10, 2);
+
+        cd.Property(item => item.UserId).HasMaxLength(50).IsRequired();
+
+        #endregion
     }
 }

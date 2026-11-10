@@ -1,8 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using TheBand.CoreDomain.Interfaces;
 using TheBand.CoreInfrastructure.Repositories;
 
 namespace TheBand.CoreInfrastructure.Data;
@@ -18,11 +17,11 @@ public static class DependencyInjection
 
         services.AddSingleton<NpgsqlDataSource>(_ => NpgsqlDataSource.Create(connectionString));
 
-        services.AddScoped<IVinylRepository, VinylRepository>();
-
-        services.AddScoped<ICassetteRepository, CassetteRepository>();
-
-        services.AddScoped<IConcertRepository, ConcertRepository>();
+        services.Scan(scan => scan
+                .FromAssemblyOf<VinylRepository>()
+                .AddClasses(c => c.Where(t => t.Name.EndsWith("Repository")))
+                .AsMatchingInterface()
+                .WithScopedLifetime());
 
         return services;
     }
