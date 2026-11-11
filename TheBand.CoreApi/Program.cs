@@ -80,11 +80,9 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-app.UseForwardedHeaders(); 
+app.UseForwardedHeaders();
 
-app.UseMiddleware<VinylValidationMiddleware>();
-app.UseMiddleware<CassetteValidationMiddleware>();
-app.UseMiddleware<ConcertValidationMiddleware>();
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
