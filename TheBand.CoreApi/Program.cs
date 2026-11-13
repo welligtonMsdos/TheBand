@@ -1,13 +1,23 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using OpenTelemetry.Metrics;
 using Scalar.AspNetCore;
 using System.Text;
+using TheBand.CoreApi.Filters;
 using TheBand.CoreApi.Middleware;
 using TheBand.CoreApplication.Extensions;
 using TheBand.CoreInfrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 DotNetEnv.Env.Load(Path.Combine(builder.Environment.ContentRootPath, ".env"));
 
@@ -35,6 +45,16 @@ builder.Services.AddOpenTelemetry()
             .AddRuntimeInstrumentation()
             .AddPrometheusExporter();
     });
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
+
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidatorFilter>();
+});
 
 builder.Services.AddOpenApi(options =>
 {
