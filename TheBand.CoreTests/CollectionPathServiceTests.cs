@@ -1,6 +1,5 @@
 using TheBand.CoreApplication.Dtos;
 using TheBand.CoreApplication.Interfaces;
-using TheBand.CoreApplication.Models;
 using TheBand.CoreApplication.Services;
 
 namespace TheBand.CoreTests;
@@ -12,7 +11,7 @@ public sealed class CollectionPathServiceTests
     {
         var repository = new FakeRepository
         {
-            Paths = [new CollectionPathItem("cassette.jpg", "cassette"), new CollectionPathItem("cd.jpg", "cd")]
+            Paths = [new CollectionPathDto("cassette.jpg", "cassette"), new CollectionPathDto("cd.jpg", "cd")]
         };
 
         ICollectionPathService service = new CollectionPathService(repository);
@@ -21,9 +20,7 @@ public sealed class CollectionPathServiceTests
 
         var paths = await service.GetActivePathsAsync("user-1", cancellation.Token);
 
-        Assert.Equal(
-            [new CollectionPathDto("cassette.jpg", "cassette"), new CollectionPathDto("cd.jpg", "cd")],
-            paths);
+        Assert.Equal([new CollectionPathDto("cassette.jpg", "cassette"), new CollectionPathDto("cd.jpg", "cd")], paths);
 
         Assert.Equal("user-1", repository.UserId);
 
@@ -67,7 +64,7 @@ public sealed class CollectionPathServiceTests
 
     private sealed class FakeRepository : ICollectionPathRepository
     {
-        public IReadOnlyCollection<CollectionPathItem> Paths { get; set; } = [];
+        public IReadOnlyCollection<CollectionPathDto> Paths { get; set; } = [];
 
         public Exception? Failure { get; set; }
 
@@ -75,13 +72,13 @@ public sealed class CollectionPathServiceTests
 
         public CancellationToken CancellationToken { get; private set; }
 
-        public Task<IReadOnlyCollection<CollectionPathItem>> GetActivePathsAsync(string userId, CancellationToken cancellationToken)
+        public Task<IReadOnlyCollection<CollectionPathDto>> GetActivePathsAsync(string userId, CancellationToken cancellationToken)
         {
             UserId = userId;
 
             CancellationToken = cancellationToken;
 
-            return Failure is null ? Task.FromResult(Paths) : Task.FromException<IReadOnlyCollection<CollectionPathItem>>(Failure);
+            return Failure is null ? Task.FromResult(Paths) : Task.FromException<IReadOnlyCollection<CollectionPathDto>>(Failure);
         }
     }
 }
