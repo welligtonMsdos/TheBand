@@ -7,7 +7,7 @@ namespace TheBand.CoreTests;
 public sealed class CollectionPathServiceTests
 {
     [Fact]
-    public async Task GetActivePathsAsync_MapsPathsAndForwardsUserAndCancellation()
+    public async Task GetActivePathsAsync_MapsPathsAndForwardsCancellation()
     {
         var repository = new FakeRepository
         {
@@ -18,11 +18,9 @@ public sealed class CollectionPathServiceTests
 
         using var cancellation = new CancellationTokenSource();
 
-        var paths = await service.GetActivePathsAsync("user-1", cancellation.Token);
+        var paths = await service.GetActivePathsAsync(cancellation.Token);
 
         Assert.Equal([new CollectionPathDto("cassette.jpg", "cassette"), new CollectionPathDto("cd.jpg", "cd")], paths);
-
-        Assert.Equal("user-1", repository.UserId);
 
         Assert.Equal(cancellation.Token, repository.CancellationToken);
     }
@@ -32,22 +30,7 @@ public sealed class CollectionPathServiceTests
     {
         ICollectionPathService service = new CollectionPathService(new FakeRepository());
 
-        Assert.Empty(await service.GetActivePathsAsync("user-1", CancellationToken.None));
-    }
-
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData(" ")]
-    public async Task GetActivePathsAsync_InvalidUserId_DoesNotQueryRepository(string? userId)
-    {
-        var repository = new FakeRepository();
-
-        ICollectionPathService service = new CollectionPathService(repository);
-
-        await Assert.ThrowsAsync<ArgumentException>(() => service.GetActivePathsAsync(userId!, CancellationToken.None));
-
-        Assert.Null(repository.UserId);
+        Assert.Empty(await service.GetActivePathsAsync(CancellationToken.None));
     }
 
     [Fact]
@@ -57,7 +40,7 @@ public sealed class CollectionPathServiceTests
 
         ICollectionPathService service = new CollectionPathService(new FakeRepository { Failure = failure });
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => service.GetActivePathsAsync("user-1", CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => service.GetActivePathsAsync(CancellationToken.None));
 
         Assert.Same(failure, exception);
     }
@@ -68,14 +51,10 @@ public sealed class CollectionPathServiceTests
 
         public Exception? Failure { get; set; }
 
-        public string? UserId { get; private set; }
-
         public CancellationToken CancellationToken { get; private set; }
 
-        public Task<IReadOnlyCollection<CollectionPathDto>> GetActivePathsAsync(string userId, CancellationToken cancellationToken)
+        public Task<IReadOnlyCollection<CollectionPathDto>> GetActivePathsAsync(CancellationToken cancellationToken)
         {
-            UserId = userId;
-
             CancellationToken = cancellationToken;
 
             return Failure is null ? Task.FromResult(Paths) : Task.FromException<IReadOnlyCollection<CollectionPathDto>>(Failure);

@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using TheBand.CoreInfrastructure.Repositories;
+using TheBand.CoreApplication.Interfaces;
+using TheBand.CoreInfrastructure.Services;
 
 namespace TheBand.CoreInfrastructure.Data;
 
@@ -16,6 +18,8 @@ public static class DependencyInjection
         services.AddDbContext<CoreContext>(options => options.UseNpgsql(connectionString));
 
         services.AddSingleton<NpgsqlDataSource>(_ => NpgsqlDataSource.Create(connectionString));
+
+        services.AddScoped<ICoreBackupExporter, CoreBackupExporter>();
 
         services.Scan(scan => scan
                 .FromAssemblyOf<VinylRepository>()

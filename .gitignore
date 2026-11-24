@@ -363,3 +363,6 @@ MigrationBackup/
 FodyWeavers.xsd
 /TheBand.AuthApi/.env
 /TheBand.CoreApi/.env
+/TheBand.CoreWorker/.env
+**/bkp/
+/.dotnet/

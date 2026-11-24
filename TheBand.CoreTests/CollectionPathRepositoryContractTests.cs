@@ -10,7 +10,7 @@ namespace TheBand.CoreTests;
 public sealed class CollectionPathRepositoryContractTests
 {
     [Fact]
-    public async Task GetActivePathsAsync_ReturnsOnlyActivePhotosForRequestedUserFromAllFormats()
+    public async Task GetActivePathsAsync_ReturnsActivePhotosFromAllFormats()
     {
         await using var context = CreateContext();
 
@@ -28,12 +28,13 @@ public sealed class CollectionPathRepositoryContractTests
 
         ICollectionPathRepository repository = new CollectionPathRepository(context);
 
-        var paths = await repository.GetActivePathsAsync("user-1", CancellationToken.None);
+        var paths = await repository.GetActivePathsAsync(CancellationToken.None);
 
         Assert.Equal(
             [
                 new CollectionPathDto("cassette.jpg", "cassette"),
                 new CollectionPathDto("cd.jpg", "cd"),
+                new CollectionPathDto("other-user.jpg", "cd"),
                 new CollectionPathDto("vinyl.jpg", "vinyl")
             ],
             paths);
@@ -46,7 +47,7 @@ public sealed class CollectionPathRepositoryContractTests
 
         ICollectionPathRepository repository = new CollectionPathRepository(context);
 
-        Assert.Empty(await repository.GetActivePathsAsync("user-1", CancellationToken.None));
+        Assert.Empty(await repository.GetActivePathsAsync(CancellationToken.None));
     }
 
     [Fact]
@@ -60,7 +61,7 @@ public sealed class CollectionPathRepositoryContractTests
 
         cancellation.Cancel();
 
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repository.GetActivePathsAsync("user-1", cancellation.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => repository.GetActivePathsAsync(cancellation.Token));
     }
 
     private static CoreContext CreateContext() =>

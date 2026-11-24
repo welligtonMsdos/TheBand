@@ -9,4 +9,5 @@
   <Project Path="TheBand.CoreDomain/TheBand.CoreDomain.csproj" Id="b1b6fca5-07bf-44dd-af50-7efc67bdc06c" />
   <Project Path="TheBand.CoreInfrastructure/TheBand.CoreInfrastructure.csproj" Id="77e996d8-7d61-42cc-8b67-aba38659b7d0" />
   <Project Path="TheBand.CoreTests/TheBand.CoreTests.csproj" Id="a93ecfed-ebeb-4255-98ba-ccb657e95580" />
+  <Project Path="TheBand.CoreWorker/TheBand.CoreWorker.csproj" />
 </Solution>

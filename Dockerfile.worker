@@ -1,0 +1,14 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY ["TheBand.CoreWorker/TheBand.CoreWorker.csproj", "TheBand.CoreWorker/"]
+COPY ["TheBand.CoreApplication/TheBand.CoreApplication.csproj", "TheBand.CoreApplication/"]
+COPY ["TheBand.CoreDomain/TheBand.CoreDomain.csproj", "TheBand.CoreDomain/"]
+COPY ["TheBand.CoreInfrastructure/TheBand.CoreInfrastructure.csproj", "TheBand.CoreInfrastructure/"]
+RUN dotnet restore "TheBand.CoreWorker/TheBand.CoreWorker.csproj"
+COPY . .
+RUN dotnet publish "TheBand.CoreWorker/TheBand.CoreWorker.csproj" -c Release -o /app/publish --no-restore /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/runtime:10.0 AS final
+WORKDIR /app
+COPY --from=build /app/publish .
+ENTRYPOINT ["dotnet", "TheBand.CoreWorker.dll"]

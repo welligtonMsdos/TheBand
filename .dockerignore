@@ -1,0 +1,6 @@
+.git
+.dotnet
+**/bin
+**/obj
+**/bkp
+**/.env
