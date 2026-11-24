@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using TheBand.CoreApplication.Dtos;
 using TheBand.CoreApplication.Interfaces;
-using TheBand.CoreApplication.Models;
 using TheBand.CoreDomain.Entities;
 using TheBand.CoreInfrastructure.Data;
 using TheBand.CoreInfrastructure.Repositories;
@@ -32,9 +32,9 @@ public sealed class CollectionPathRepositoryContractTests
 
         Assert.Equal(
             [
-                new CollectionPathItem("cassette.jpg", "cassette"),
-                new CollectionPathItem("cd.jpg", "cd"),
-                new CollectionPathItem("vinyl.jpg", "vinyl")
+                new CollectionPathDto("cassette.jpg", "cassette"),
+                new CollectionPathDto("cd.jpg", "cd"),
+                new CollectionPathDto("vinyl.jpg", "vinyl")
             ],
             paths);
     }

@@ -12,14 +12,9 @@ public sealed class CollectionPathService : ICollectionPathService
         _repository = repository;
     }
 
-    public async Task<IReadOnlyCollection<CollectionPathDto>> GetActivePathsAsync(string userId, CancellationToken cancellationToken)
+    public async Task<IReadOnlyCollection<CollectionPathDto>> GetActivePathsAsync(CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(userId))
-        {
-            throw new ArgumentException("O identificador do usuário é obrigatório.", nameof(userId));
-        }
-
-        var paths = await _repository.GetActivePathsAsync(userId, cancellationToken);
+        var paths = await _repository.GetActivePathsAsync(cancellationToken);
 
         return paths.Select(item => new CollectionPathDto(item.Path, item.Tag)).ToList();
     }

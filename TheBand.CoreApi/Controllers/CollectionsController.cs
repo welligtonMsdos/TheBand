@@ -6,7 +6,6 @@ using TheBand.CoreApplication.Interfaces;
 namespace TheBand.CoreApi.Controllers;
 
 [ApiController]
-[Authorize]
 [Route("api/collections")]
 public sealed class CollectionsController : BaseController
 {
@@ -20,7 +19,7 @@ public sealed class CollectionsController : BaseController
     [HttpGet("paths")]
     public async Task<ActionResult<IReadOnlyCollection<CollectionPathDto>>> GetPaths(CancellationToken cancellationToken)
     {
-        var paths = await _service.GetActivePathsAsync(UserId, cancellationToken);
+        var paths = await _service.GetActivePathsAsync(cancellationToken);
 
         return Ok(paths);
     }

@@ -1,8 +1,8 @@
-using TheBand.CoreApplication.Models;
+using TheBand.CoreApplication.Dtos;
 
 namespace TheBand.CoreApplication.Interfaces;
 
 public interface ICollectionPathRepository
 {
-    Task<IReadOnlyCollection<CollectionPathItem>> GetActivePathsAsync(string userId, CancellationToken cancellationToken);
+    Task<IReadOnlyCollection<CollectionPathDto>> GetActivePathsAsync(CancellationToken cancellationToken);
 }
